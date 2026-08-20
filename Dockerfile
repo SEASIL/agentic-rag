@@ -18,10 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-# Run the ingestion script to bake the database directly into the image!
-# This allows it to run on 100% free hosts without needing paid persistent storage.
-RUN python scripts/ingest.py
-
 # Expose the port FastAPI runs on
 EXPOSE 8000
 

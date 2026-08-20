@@ -32,4 +32,4 @@ share/python-wheels/
 MANIFEST
 
 # Local Data
-data/chroma_db/
+# (chroma_db is pushed so free hosts don't have to build it)
