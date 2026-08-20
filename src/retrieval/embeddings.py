@@ -2,29 +2,27 @@
 Wraps dense embedding models behind one interface so ingestion and
 query-time retrieval always produce vectors the same way.
 
-Dense:  sentence-transformers (BGE) -> semantic similarity
+Dense:  Google Gemini API -> semantic similarity
 """
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import TYPE_CHECKING
-
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from configs.settings import settings
 
-if TYPE_CHECKING:
-    from sentence_transformers import SentenceTransformer
-
-
 @lru_cache(maxsize=1)
-def get_dense_model() -> "SentenceTransformer":
-    from sentence_transformers import SentenceTransformer
-    return SentenceTransformer(settings.dense_model_name)
-
+def get_dense_model() -> GoogleGenerativeAIEmbeddings:
+    return GoogleGenerativeAIEmbeddings(
+        model="models/embedding-001", 
+        google_api_key=settings.gemini_api_key
+    )
 
 def embed_dense(texts: list[str]) -> list[list[float]]:
+    if not texts:
+        return []
     model = get_dense_model()
-    return model.encode(texts, normalize_embeddings=True).tolist()
-
+    return model.embed_documents(texts)
 
 def embed_dense_query(query: str) -> list[float]:
-    return embed_dense([query])[0]
+    model = get_dense_model()
+    return model.embed_query(query)

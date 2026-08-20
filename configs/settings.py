@@ -8,8 +8,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    # --- Chroma DB ---
-    chroma_db_dir: str = "data/chroma_db"
+    # --- Database (Supabase / Postgres) ---
+    database_url: str = ""
     chroma_collection: str = "enterprise_docs"
 
     # --- Embeddings ---

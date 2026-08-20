@@ -1,16 +1,11 @@
 """
-Dense semantic retrieval using Chroma DB.
-(Formerly hybrid search, refactored to dense-only for Chroma compatibility).
+Dense semantic retrieval using PostgreSQL pgvector.
 """
 from __future__ import annotations
 
-import chromadb
 from dataclasses import dataclass, field
-
 from configs.settings import settings
-from src.retrieval.embeddings import embed_dense_query
-from src.retrieval.vector_store import ensure_collection, get_client
-
+from src.retrieval.vector_store import get_vector_store
 
 @dataclass
 class RetrievedChunk:
@@ -20,42 +15,35 @@ class RetrievedChunk:
     page_number: int | None
     metadata: dict = field(default_factory=dict)
     dense_rank: int | None = None
-    rerank_score: float | None = None  # populated later by reranker.py
+    rerank_score: float | None = None
 
 
 def hybrid_search(
     query: str,
     top_k: int | None = None,
-    client: chromadb.ClientAPI | None = None,
+    client=None,
 ) -> list[RetrievedChunk]:
-    """Runs dense search against Chroma DB.
-    (Kept function name 'hybrid_search' for backwards compatibility with retriever.py)"""
-    client = client or get_client()
-    collection = ensure_collection(client)
+    """Runs dense search against Postgres pgvector."""
+    store = get_vector_store()
     top_k = top_k or settings.dense_top_k
-
-    vec = embed_dense_query(query)
     
-    results = collection.query(
-        query_embeddings=[vec],
-        n_results=top_k,
-        include=["documents", "metadatas", "distances"]
-    )
+    # Run similarity search
+    results = store.similarity_search_with_score(query, k=top_k)
 
     retrieved = []
     
-    if not results["ids"] or not results["ids"][0]:
-        return retrieved
-        
-    for rank, (doc_id, text, metadata) in enumerate(
-        zip(results["ids"][0], results["documents"][0], results["metadatas"][0]), 
-        start=1
-    ):
+    for rank, (doc, score) in enumerate(results, start=1):
+        metadata = doc.metadata or {}
         page_num = metadata.get("page_number", -1)
+        
+        # PGVector doesn't easily expose the raw ID from add_texts natively in the result Document 
+        # without custom queries, but for standard RAG, we don't strictly need the UUID here.
+        # We will fallback to a default if not present.
+        doc_id = metadata.get("id", f"doc_{rank}")
         
         rc = RetrievedChunk(
             id=doc_id,
-            text=text,
+            text=doc.page_content,
             source_path=metadata.get("source_path", ""),
             page_number=page_num if page_num != -1 else None,
             metadata=metadata,

@@ -1,44 +1,46 @@
 """
-Chroma DB collection management.
+PostgreSQL pgvector collection management using langchain-postgres.
 """
 from __future__ import annotations
 
-import chromadb
-
+from langchain_postgres.vectorstores import PGVector
 from configs.settings import settings
 from src.ingestion.schema import Chunk
-from src.retrieval.embeddings import embed_dense
+from src.retrieval.embeddings import get_dense_model
 
+def get_vector_store() -> PGVector:
+    if not settings.database_url:
+        raise ValueError("DATABASE_URL environment variable is missing. Please set your Supabase connection string.")
+        
+    # Standardize the connection string for psycopg3
+    connection_string = settings.database_url
+    if connection_string.startswith("postgres://"):
+        connection_string = connection_string.replace("postgres://", "postgresql+psycopg://")
+    elif connection_string.startswith("postgresql://"):
+        connection_string = connection_string.replace("postgresql://", "postgresql+psycopg://")
 
-from chromadb.config import Settings
-
-def get_client() -> chromadb.ClientAPI:
-    return chromadb.PersistentClient(
-        path=settings.chroma_db_dir,
-        settings=Settings(anonymized_telemetry=False)
+    return PGVector(
+        embeddings=get_dense_model(),
+        collection_name=settings.chroma_collection,
+        connection=connection_string,
+        use_jsonb=True
     )
 
+def ensure_collection(client=None):
+    # PGVector creates the collection automatically upon initialization/insertion
+    return get_vector_store()
 
-def ensure_collection(client: chromadb.ClientAPI | None = None):
-    client = client or get_client()
-    return client.get_or_create_collection(name=settings.chroma_collection)
-
-
-def upsert_chunks(chunks: list[Chunk], client: chromadb.ClientAPI | None = None, batch_size: int = 64) -> None:
-    """Embeds and upserts chunks in batches using Chroma DB."""
-    client = client or get_client()
-    collection = ensure_collection(client)
+def upsert_chunks(chunks: list[Chunk], client=None, batch_size: int = 64) -> None:
+    """Embeds and upserts chunks in batches using PGVector."""
+    store = get_vector_store()
 
     for start in range(0, len(chunks), batch_size):
         batch = chunks[start : start + batch_size]
         texts = [c.text for c in batch]
         ids = [c.id for c in batch]
 
-        dense_vecs = embed_dense(texts)
-
         metadatas = []
         for chunk in batch:
-            # Chroma metadatas must be str, int, float, or bool
             metadatas.append({
                 "source_type": str(chunk.source_type.value),
                 "source_path": chunk.source_path,
@@ -46,9 +48,4 @@ def upsert_chunks(chunks: list[Chunk], client: chromadb.ClientAPI | None = None,
                 "section_title": chunk.section_title or "",
             })
 
-        collection.upsert(
-            ids=ids,
-            embeddings=dense_vecs,
-            documents=texts,
-            metadatas=metadatas
-        )
+        store.add_texts(texts=texts, metadatas=metadatas, ids=ids)

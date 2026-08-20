@@ -17,7 +17,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from src.ingestion.pdf_loader import pdf_to_raw_records
 from src.ingestion.table_loader import table_to_raw_records
 from src.ingestion.chunker import records_to_chunks
-from src.retrieval.vector_store import upsert_chunks, ensure_collection, get_client
+from src.retrieval.vector_store import upsert_chunks, ensure_collection
 
 LOADERS = {
     ".pdf": pdf_to_raw_records,
@@ -28,8 +28,7 @@ LOADERS = {
 
 
 def ingest_path(root: Path) -> int:
-    client = get_client()
-    ensure_collection(client)
+    ensure_collection()
 
     total_chunks = 0
     files = [f for f in root.rglob("*") if f.suffix.lower() in LOADERS]
@@ -43,7 +42,7 @@ def ingest_path(root: Path) -> int:
         print(f"Ingesting {file_path} ...")
         records = loader(file_path)
         chunks = records_to_chunks(records)
-        upsert_chunks(chunks, client=client)
+        upsert_chunks(chunks)
         total_chunks += len(chunks)
         print(f"  -> {len(chunks)} chunks")
 
