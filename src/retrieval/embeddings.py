@@ -12,8 +12,13 @@ from configs.settings import settings
 
 @lru_cache(maxsize=1)
 def get_dense_model() -> GoogleGenerativeAIEmbeddings:
+    """
+    Returns a Google Generative AI embeddings model.
+    """
+    if not settings.gemini_api_key:
+        raise ValueError("GEMINI_API_KEY is not set.")
     return GoogleGenerativeAIEmbeddings(
-        model="models/embedding-001", 
+        model="models/gemini-embedding-2", 
         google_api_key=settings.gemini_api_key
     )
 
