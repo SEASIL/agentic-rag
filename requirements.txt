@@ -20,6 +20,7 @@ langchain==0.2.14
 langchain-core==0.2.36
 langchain-community==0.2.12
 langchain-google-genai==1.0.8
+langchain-openai==0.1.23
 tavily-python==0.3.3
 
 # --- Evaluation ---
