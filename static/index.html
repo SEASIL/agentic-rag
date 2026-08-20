@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic RAG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { background-color: #050505; color: #e5e5e5; }
+        
+        /* Markdown Styles */
+        .markdown-content h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: #fff; }
+        .markdown-content h3:first-child { margin-top: 0; }
+        .markdown-content p { margin-bottom: 0.75rem; }
+        .markdown-content p:last-child { margin-bottom: 0; }
+        .markdown-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-content li { margin-bottom: 0.25rem; }
+        .markdown-content strong { font-weight: 600; color: #fff; }
+        .markdown-content a { color: #34d399; text-decoration: underline; text-underline-offset: 2px; }
+        .markdown-content code { background-color: #262626; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; }
+        .markdown-content pre code { display: block; padding: 1rem; overflow-x: auto; margin-bottom: 0.75rem; border-radius: 0.5rem; background-color: #1a1a1a; }
+        
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        /* Loading animation dots */
+        .dot-flashing {
+            position: relative;
+            width: 8px;
+            height: 8px;
+            border-radius: 5px;
+            background-color: #10b981;
+            animation: dot-flashing 1s infinite linear alternate;
+            animation-delay: 0.5s;
+        }
+        .dot-flashing::before, .dot-flashing::after {
+            content: '';
+            display: inline-block;
+            position: absolute;
+            top: 0;
+            width: 8px;
+            height: 8px;
+            border-radius: 5px;
+            background-color: #10b981;
+            animation: dot-flashing 1s infinite alternate;
+        }
+        .dot-flashing::before {
+            left: -15px;
+            animation-delay: 0s;
+        }
+        .dot-flashing::after {
+            left: 15px;
+            animation-delay: 1s;
+        }
+        @keyframes dot-flashing {
+            0% { background-color: #10b981; }
+            50%, 100% { background-color: rgba(16, 185, 129, 0.2); }
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col font-sans selection:bg-emerald-500/30">
+
+    <!-- Minimal Premium Header -->
+    <header class="flex-none pt-8 pb-4 px-8 flex justify-between items-center z-20 sticky top-0 bg-[#050505]/80 backdrop-blur-md border-b border-gray-900">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.6)] animate-pulse"></div>
+            <h1 class="text-xl font-bold tracking-tighter text-white">AGENTIC<span class="text-gray-500 font-light">.RAG</span></h1>
+        </div>
+    </header>
+
+    <!-- Chat Area -->
+    <main id="chat-box" class="flex-1 overflow-y-auto w-full px-4 sm:px-8">
+        <div class="max-w-4xl mx-auto w-full pt-10 pb-32 space-y-12">
+            
+            <div class="flex flex-col items-center justify-center h-[60vh] w-full" id="welcome-msg">
+                <div class="relative flex items-center justify-center">
+                    <!-- Deep Ambient Glow -->
+                    <div class="absolute w-48 h-48 bg-emerald-500 rounded-full blur-[80px] opacity-30"></div>
+
+                    <!-- Custom Animated Agentic Core -->
+                    <div class="relative w-32 h-32 flex items-center justify-center">
+                        
+                        <!-- Outer Scanning Ring -->
+                        <svg class="absolute w-full h-full text-emerald-500/40 animate-[spin_8s_linear_infinite]" viewBox="0 0 100 100" fill="none">
+                            <circle cx="50" cy="50" r="48" stroke="currentColor" stroke-width="1" stroke-dasharray="15 5 40 5 10 5" />
+                        </svg>
+                        
+                        <!-- Inner Processing Ring -->
+                        <svg class="absolute w-24 h-24 text-emerald-400/60 animate-[spin_4s_linear_infinite_reverse]" viewBox="0 0 100 100" fill="none">
+                            <circle cx="50" cy="50" r="48" stroke="currentColor" stroke-width="1.5" stroke-dasharray="50 50" stroke-linecap="round" />
+                            <circle cx="50" cy="50" r="48" stroke="currentColor" stroke-width="4" stroke-dasharray="2 98" stroke-linecap="round" />
+                        </svg>
+
+                        <!-- Central AI Core -->
+                        <div class="w-10 h-10 bg-gradient-to-tr from-emerald-400 to-teal-200 rounded-full shadow-[0_0_40px_rgba(52,211,153,0.8)] animate-pulse"></div>
+                        <div class="absolute w-4 h-4 bg-white rounded-full blur-[2px] opacity-80"></div>
+                        
+                        <!-- Floating Data Particles -->
+                        <div class="absolute w-2 h-2 bg-white rounded-full top-[-10px] animate-ping opacity-70"></div>
+                        <div class="absolute w-1.5 h-1.5 bg-emerald-200 rounded-full bottom-[10px] right-[-5px] animate-pulse"></div>
+                        <div class="absolute w-1 h-1 bg-cyan-200 rounded-full top-[20px] left-[0px] animate-bounce"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Glowing Input Area -->
+    <footer class="fixed bottom-0 w-full bg-gradient-to-t from-[#050505] via-[#050505] to-transparent pt-12 pb-8 px-4 z-20">
+        <div class="max-w-4xl mx-auto relative group">
+            
+            <!-- Explicit Stop Button -->
+            <div id="stop-btn-container" class="absolute -top-14 left-1/2 transform -translate-x-1/2 hidden z-30">
+                <button onclick="stopSearch()" class="flex items-center gap-2 bg-[#1a1a1a] text-gray-300 border border-[#333] hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-[#262626] rounded-full px-4 py-2 text-sm shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-all">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>
+                    Stop searching
+                </button>
+            </div>
+
+            <!-- Glowing backdrop effect -->
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-[2rem] blur opacity-20 group-focus-within:opacity-40 transition duration-500"></div>
+            
+            <div class="relative flex items-center bg-[#0f0f0f] border border-[#262626] rounded-[2rem] px-2 py-2 shadow-2xl">
+                <!-- Search Mode Toggle -->
+                <select id="search-mode" class="ml-4 bg-[#1a1a1a] text-gray-300 border border-[#333] text-sm rounded-xl px-2 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer transition-colors hover:bg-[#262626]">
+                    <option value="auto">Auto (Smart Routing)</option>
+                    <option value="local">Local Docs Only</option>
+                    <option value="web">Web Search Only</option>
+                </select>
+
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Message your Agent..." 
+                    class="flex-1 bg-transparent border-none px-6 py-4 focus:outline-none text-white placeholder-gray-500 text-lg font-medium"
+                    onkeypress="if(event.key === 'Enter') handleAction()"
+                    autocomplete="off"
+                />
+                <button 
+                    onclick="handleAction()" 
+                    id="action-btn"
+                    class="flex-shrink-0 bg-white text-black hover:bg-gray-200 disabled:bg-[#262626] disabled:text-gray-500 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-300 mr-1 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                >
+                    <svg id="send-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const chatBox = document.querySelector('#chat-box > div');
+        const userInput = document.getElementById('user-input');
+        const welcomeMsg = document.getElementById('welcome-msg');
+        const actionBtn = document.getElementById('action-btn');
+        const sendIcon = document.getElementById('send-icon');
+        const mainScroll = document.getElementById('chat-box');
+
+        let abortController = null;
+        let isSearching = false;
+        let chatHistory = [];
+
+        function appendMessage(role, text, citations = []) {
+            if(welcomeMsg) welcomeMsg.style.display = 'none';
+
+            const div = document.createElement('div');
+            div.className = `flex w-full ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+
+            let citationHTML = '';
+            if (citations && citations.length > 0) {
+                citationHTML = `<div class="mt-4 flex flex-wrap gap-2">` + 
+                    citations.map(c => {
+                        let displayName = c.source_path;
+                        try {
+                            // Try to parse as URL (for web search results)
+                            displayName = new URL(c.source_path).hostname.replace('www.', '');
+                        } catch (e) {
+                            // If it fails, it's a local file path. Just extract the filename.
+                            displayName = c.source_path.split('\\').pop().split('/').pop();
+                        }
+                        
+                        return `
+                        <div class="inline-flex items-center bg-[#1a1a1a] border border-[#262626] rounded-full px-3 py-1.5 shadow-sm hover:border-emerald-500/50 transition-colors cursor-pointer group" title="${c.source_path}">
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2 group-hover:shadow-[0_0_8px_rgba(52,211,153,0.8)] transition-shadow"></div>
+                            <span class="truncate text-xs font-mono text-gray-400 group-hover:text-emerald-400 transition-colors max-w-[200px]">
+                                ${displayName} ${c.page_number ? `(p.${c.page_number})` : ''}
+                            </span>
+                        </div>
+                    `}).join('') + 
+                `</div>`;
+            }
+
+            const contentHTML = role === 'user' 
+                ? `<div class="text-[15px] sm:text-base leading-relaxed whitespace-pre-wrap font-medium">${text.replace(/</g, '&lt;')}</div>`
+                : `<div class="text-[15px] sm:text-base leading-relaxed font-medium markdown-content">${marked.parse(text)}</div>`;
+
+            div.innerHTML = `
+                <div class="flex flex-col max-w-[85%] ${role === 'user' ? 'items-end' : 'items-start'} animate-fade-in-up">
+                    <div class="px-6 py-4 rounded-3xl ${role === 'user' ? 'bg-white text-black rounded-br-sm shadow-xl' : 'bg-[#171717] border border-[#262626] text-gray-200 rounded-bl-sm'}">
+                        ${contentHTML}
+                    </div>
+                    ${citationHTML}
+                </div>
+            `;
+            chatBox.appendChild(div);
+            mainScroll.scrollTo(0, mainScroll.scrollHeight);
+            
+            // Push to chat history
+            chatHistory.push({ role: role, content: text });
+            return div;
+        }
+
+        function handleAction() {
+            if (isSearching) {
+                stopSearch();
+            } else {
+                sendMessage();
+            }
+        }
+
+        function stopSearch() {
+            if (abortController) {
+                abortController.abort();
+            }
+        }
+
+        function toggleUIState(searching) {
+            isSearching = searching;
+            const stopBtnContainer = document.getElementById('stop-btn-container');
+            
+            if (searching) {
+                userInput.disabled = true;
+                actionBtn.disabled = true;
+                if(stopBtnContainer) stopBtnContainer.classList.remove('hidden');
+            } else {
+                userInput.disabled = false;
+                actionBtn.disabled = false;
+                if(stopBtnContainer) stopBtnContainer.classList.add('hidden');
+                userInput.focus();
+            }
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            userInput.value = '';
+            toggleUIState(true);
+            
+            // Send current chatHistory before appending the new user message,
+            // or we could append it and send history excluding the last message.
+            // Let's send the existing history, then append the new user message.
+            const historyToSend = [...chatHistory];
+            
+            appendMessage('user', text);
+            
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'flex w-full justify-start';
+            loadingDiv.innerHTML = `
+                <div class="px-6 py-4 bg-[#171717] border border-[#262626] rounded-3xl rounded-bl-sm flex items-center justify-center min-w-[80px]">
+                    <!-- Geometric AI Processing Node -->
+                    <div class="relative flex items-center justify-center w-8 h-8">
+                        <!-- Outer radar pulse (Square emitting outwards) -->
+                        <div class="absolute w-full h-full border border-emerald-500/50 rounded-sm animate-ping" style="animation-duration: 1.5s"></div>
+                        
+                        <!-- Inner spinning diamond -->
+                        <div class="w-4 h-4 bg-gradient-to-tr from-cyan-400 to-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.8)] animate-[spin_2s_linear_infinite]"></div>
+                        
+                        <!-- Core spark -->
+                        <div class="absolute w-1.5 h-1.5 bg-white rounded-full animate-pulse blur-[0.5px]"></div>
+                    </div>
+                </div>
+            `;
+            chatBox.appendChild(loadingDiv);
+            mainScroll.scrollTo(0, mainScroll.scrollHeight);
+
+            abortController = new AbortController();
+            const searchMode = document.getElementById('search-mode').value;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: text, chat_history: historyToSend, search_mode: searchMode }),
+                    signal: abortController.signal
+                });
+                
+                const data = await res.json();
+                chatBox.removeChild(loadingDiv);
+                
+                if (!res.ok) throw new Error(data.detail || 'Error');
+                
+                appendMessage('assistant', data.answer, data.citations);
+            } catch (err) {
+                if (chatBox.contains(loadingDiv)) {
+                    chatBox.removeChild(loadingDiv);
+                }
+                if (err.name === 'AbortError') {
+                    appendMessage('assistant', 'Search cancelled.');
+                } else {
+                    console.error(err);
+                    appendMessage('assistant', 'System offline or an error occurred rendering the message.');
+                }
+            } finally {
+                toggleUIState(false);
+                mainScroll.scrollTo(0, mainScroll.scrollHeight);
+            }
+        }
+    </script>
+</body>
+</html>
