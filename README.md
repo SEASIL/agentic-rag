@@ -1,146 +1,79 @@
-# Hybrid Agentic RAG System
+# 🤖 Agentic RAG Document Assistant
 
-An enterprise document assistant for multi-hop reasoning across heterogeneous
-documents (PDFs, tables, live web). Hybrid dense+lexical retrieval, an
-agentic LangGraph orchestration layer, and a Ragas-based CI evaluation gate.
+A full-stack, AI-powered document assistant that uses **Agentic Retrieval-Augmented Generation (RAG)** to intelligently answer questions by searching through your local documents or browsing the live web.
 
-**100% free and open-source stack — no API keys, no paid services required:**
+**[👉 Click here to view the Live Demo on Render!](https://your-app-name.onrender.com)**
 
-| Component | Tool | Cost |
-|---|---|---|
-| Vector DB | Qdrant (self-hosted) | Free |
-| Dense embeddings | BGE (sentence-transformers) | Free, local |
-| Sparse/BM25 embeddings | fastembed | Free, local |
-| Reranker | BGE cross-encoder | Free, local |
-| LLM (planner/rewriter/synthesizer) | **Ollama** (Llama 3.1, local) | Free, local |
-| Web search fallback | **DuckDuckGo search** | Free, no key |
-| Eval judge (Ragas) | Same local Ollama model | Free, local |
+![Clean UI with Markdown and Citations](https://img.shields.io/badge/UI-TailwindCSS-38B2AC?style=flat-square&logo=tailwind-css)
+![FastAPI Backend](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)
+![LangGraph Orchestration](https://img.shields.io/badge/Orchestration-LangGraph-blue?style=flat-square)
 
-Everything runs on your own machine (or CI runner) — nothing calls out to a
-paid API.
+---
 
-## Architecture
+## ✨ Key Features
 
-```
-                    ┌─────────────┐
-   query ──────────▶│   planner   │  decomposes query into sub-questions
-                    └──────┬──────┘  (multi-hop decomposition)
-                           │
-                    ┌──────▼──────┐
-              ┌────▶│query_rewriter│ resolves references, optimizes for search
-              │     └──────┬──────┘
-              │            │
-              │     ┌──────▼──────┐
-              │     │  retrieve   │  hybrid search (dense+BM25, RRF fusion)
-              │     │             │  + cross-encoder rerank
-              │     └──────┬──────┘
-              │            │
-              │      low confidence?
-              │       ┌────┴────┐
-              │       │yes      │no
-              │  ┌────▼───┐     │
-              │  │web_search│    │
-              │  └────┬───┘     │
-              │       └────┬────┘
-              │       ┌────▼─────┐
-              └───────┤advance_hop│  more sub-questions? loop back : exit
-                       └────┬─────┘
-                            │
-                     ┌──────▼──────┐
-                     │ synthesize  │  grounded final answer + citations
-                     └─────────────┘
-```
+1. **Smart Agentic Routing:** The system uses an LLM-driven decision engine (LangGraph) to decide whether to search your local vectorized documents, search the live internet (via Tavily), or synthesize both.
+2. **Hybrid Context:** Combines local private data with real-time web data to provide grounded, accurate answers.
+3. **Beautiful UI:** A custom-built, responsive chat interface featuring Markdown rendering, auto-scrolling, and inline source citations (pills).
+4. **Source Citations:** Every answer includes exact references to the document (and page number) or the website it pulled the information from, completely eliminating hallucinations.
 
-### Retrieval (`src/retrieval/`)
-- **`embeddings.py`** — dense (BGE via sentence-transformers) + sparse (BM25 via fastembed)
-- **`vector_store.py`** — Qdrant collection with named dense+sparse vectors on each point
-- **`hybrid_search.py`** — runs both searches, fuses with **Reciprocal Rank Fusion**
-  (chosen over score-weighting because dense/BM25 scores aren't on comparable scales)
-- **`reranker.py`** — BGE cross-encoder re-scores the fused candidates; also gates
-  the web-search fallback via a **hard confidence threshold**, not an LLM decision,
-  so that failure mode stays debuggable
+## 🛠️ Tech Stack
 
-### Ingestion (`src/ingestion/`)
-- Format-aware: PDFs get page-tracked prose chunking; tables become **one
-  chunk per table** (or per N rows for large tables) using a pluggable
-  strategy (`structured_json` / `markdown` / `summarize`) — see
-  `table_loader.py` docstring for tradeoffs.
+* **Large Language Model (LLM):** Google Gemini (gemini-3.5-flash)
+* **Embedding Model:** BAAI/bge-m3 (1024 dimensions)
+* **Vector Database:** ChromaDB (Local SQLite-based persistent storage)
+* **Web Search Engine:** Tavily Advanced Search API
+* **Orchestration Framework:** LangGraph & LangChain
+* **Backend:** FastAPI (Python)
+* **Frontend:** HTML5, JavaScript, TailwindCSS, Marked.js
 
-### Orchestration (`src/orchestration/`)
-LangGraph state machine: `plan → rewrite_query → retrieve → (web_search?) →
-advance_hop → (loop | synthesize)`. Multi-hop is modeled as **loop-backs to
-rewrite_query**, one sub-question per hop, capped by `max_planner_hops`.
+---
 
-### Evaluation (`src/eval/`)
-- `synthetic_testset.py` — LLM-generated QA pairs from the corpus (fast, but
-  systematically easier than real queries — treat as regression detection)
-- `golden_testset.jsonl` — **populate this with real, human-verified
-  question/answer pairs** before trusting CI gates
-- `ragas_pipeline.py` — runs the full graph end-to-end per test question,
-  scores with Ragas: `context_recall`, `faithfulness`, `answer_relevancy`,
-  `context_precision`
-- `scripts/run_eval_ci.py` — CI gate; supports both absolute thresholds
-  (`configs/settings.py: ragas_thresholds`) and regression-only mode
-  (`--baseline baseline_scores.json`)
+## 🚀 How to Run Locally
 
-## Setup
+If you want to run this project on your own machine, follow these steps:
 
+### 1. Clone the repository
 ```bash
-cp .env.example .env               # defaults already work — nothing to fill in
+git clone https://github.com/SEASIL/agentic-rag.git
+cd agentic-rag
+```
+
+### 2. Install Dependencies
+```bash
 pip install -r requirements.txt
-docker compose up -d               # starts Qdrant (6333) + Ollama (11434)
-
-# Pull the local LLM (one-time, ~4.7GB for llama3.1:8b)
-docker compose exec ollama ollama pull llama3.1
 ```
 
-**Hardware note:** Llama 3.1 8B runs fine on CPU but is noticeably faster with
-a GPU. For lighter hardware, swap `LLM_MODEL` in `.env` to a smaller model
-like `llama3.2` (3B) or `qwen2.5:3b` — pull it the same way, then update
-`configs/settings.py: llm_model` or the env var to match.
+### 3. Set up Environment Variables
+Create a `.env` file in the root directory and add your free API keys:
+```env
+GEMINI_API_KEY=your_google_gemini_key_here
+TAVILY_API_KEY=your_tavily_search_key_here
+```
 
-## Usage
-
+### 4. Ingest Sample Data
+Place any PDF, CSV, or XLSX files you want the AI to read inside the `data/raw/` folder, then run the ingestion script to build the vector database:
 ```bash
-# 1. Ingest documents
-python scripts/ingest.py --path data/raw
-
-# 2. Query the full agentic pipeline
-python -m src.orchestration.graph "How did revenue change between the two reports?"
-
-# 3. Generate a synthetic eval set (optional, for quick iteration)
-python -m src.eval.synthetic_testset
-
-# 4. Run the Ragas evaluation gate
-python scripts/run_eval_ci.py --testset src/eval/golden_testset.jsonl
+python scripts/ingest.py
 ```
 
-## Tests
-
+### 5. Start the Server
 ```bash
-pytest tests/ -v
+uvicorn src.api.server:app --host 127.0.0.1 --port 8000
 ```
+Then, open your browser and go to `http://127.0.0.1:8000` to interact with the agent!
 
-Pure-logic tests (RRF fusion, chunking, table strategies) run without any
-external services. Integration tests that touch Qdrant/LLMs require the
-stack above running and are separated so CI can gate on the fast tests
-independently of the slower Ragas eval job.
+---
 
-## Status / what's stubbed vs. functional
+## 🏗️ Architecture
 
-| Component | Status |
-|---|---|
-| Ingestion (PDF, table, chunking) | Functional |
-| Hybrid search + RRF fusion | Functional |
-| Cross-encoder reranking + web-fallback gate | Functional |
-| LangGraph orchestration (planner/rewriter/synthesizer) | Wired end-to-end, uses local `llama3.1` via Ollama by default |
-| Web search fallback | Functional, DuckDuckGo — no key needed |
-| Ragas eval pipeline + CI gate | Functional, needs a populated `golden_testset.jsonl` |
+The backend operates on a state machine powered by **LangGraph**. When a user submits a query, the application state (`GraphState`) flows through the following nodes:
 
-## Next steps
-- Populate `src/eval/golden_testset.jsonl` with 20-50 real, hard examples
-  (multi-hop, table lookups, ambiguous phrasing) before trusting CI thresholds.
-- Swap the naive word-based chunker (`chunker.py: _split_text`) for a
-  token-aware splitter if context-window budgeting gets tight.
-- Consider adding a `text-to-SQL`-style path for very large/structured tables
-  instead of row-chunking, if `structured_json` chunks start blowing context.
+1. **Input Guardrail:** Checks if the query is safe and determines the user's selected search mode (Auto, Local, or Web).
+2. **Query Rewriter:** Optimizes the user's raw query into an optimized search string for the vector database and search engine.
+3. **Retrieval Node:** Embeds the query and performs a similarity search against the local ChromaDB.
+4. **Web Search Node:** Hits the Tavily API to gather live internet context (if requested).
+5. **Synthesizer:** Takes the gathered context (local + web) and synthesizes a final, formatted Markdown response with citations.
+
+---
+*Developed for resume demonstration purposes.*
