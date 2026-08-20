@@ -2,11 +2,13 @@
 
 A full-stack, AI-powered document assistant that uses **Agentic Retrieval-Augmented Generation (RAG)** to intelligently answer questions by searching through your local documents or browsing the live web.
 
-**[👉 Click here to view the Live Demo on Render!](https://your-app-name.onrender.com)**
+**[👉 Click here to view the Live Demo on Render!](https://agentic-rag-jtvr.onrender.com/)**
 
 ![Clean UI with Markdown and Citations](https://img.shields.io/badge/UI-TailwindCSS-38B2AC?style=flat-square&logo=tailwind-css)
 ![FastAPI Backend](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)
 ![LangGraph Orchestration](https://img.shields.io/badge/Orchestration-LangGraph-blue?style=flat-square)
+![Supabase Database](https://img.shields.io/badge/Database-Supabase_pgvector-3ECF8E?style=flat-square&logo=supabase)
+![Docker Container](https://img.shields.io/badge/Deployment-Docker-2496ED?style=flat-square&logo=docker)
 
 ---
 
@@ -20,11 +22,11 @@ A full-stack, AI-powered document assistant that uses **Agentic Retrieval-Augmen
 ## 🛠️ Tech Stack
 
 * **Large Language Model (LLM):** Google Gemini (gemini-3.5-flash)
-* **Embedding Model:** BAAI/bge-m3 (1024 dimensions)
-* **Vector Database:** ChromaDB (Local SQLite-based persistent storage)
+* **Embedding Model:** Google Gemini Embeddings (gemini-embedding-2)
+* **Vector Database:** Supabase PostgreSQL (`pgvector`)
 * **Web Search Engine:** Tavily Advanced Search API
 * **Orchestration Framework:** LangGraph & LangChain
-* **Backend:** FastAPI (Python)
+* **Backend & Hosting:** FastAPI (Python), Docker, Render
 * **Frontend:** HTML5, JavaScript, TailwindCSS, Marked.js
 
 ---
@@ -49,10 +51,11 @@ Create a `.env` file in the root directory and add your free API keys:
 ```env
 GEMINI_API_KEY=your_google_gemini_key_here
 TAVILY_API_KEY=your_tavily_search_key_here
+DATABASE_URL=your_supabase_postgresql_url_here
 ```
 
 ### 4. Ingest Sample Data
-Place any PDF, CSV, or XLSX files you want the AI to read inside the `data/raw/` folder, then run the ingestion script to build the vector database:
+Place any PDF, CSV, or XLSX files you want the AI to read inside the `data/raw/` folder, then run the ingestion script to build the Supabase vector database:
 ```bash
 python scripts/ingest.py
 ```
@@ -71,7 +74,7 @@ The backend operates on a state machine powered by **LangGraph**. When a user su
 
 1. **Input Guardrail:** Checks if the query is safe and determines the user's selected search mode (Auto, Local, or Web).
 2. **Query Rewriter:** Optimizes the user's raw query into an optimized search string for the vector database and search engine.
-3. **Retrieval Node:** Embeds the query and performs a similarity search against the local ChromaDB.
+3. **Retrieval Node:** Embeds the query and performs a semantic similarity search against the Supabase `pgvector` database.
 4. **Web Search Node:** Hits the Tavily API to gather live internet context (if requested).
 5. **Synthesizer:** Takes the gathered context (local + web) and synthesizes a final, formatted Markdown response with citations.
 
