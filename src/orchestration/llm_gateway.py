@@ -7,6 +7,7 @@ import os
 from langchain_core.language_models import BaseChatModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 
 from configs.settings import settings
 
@@ -18,6 +19,15 @@ def get_llm(require_advanced: bool = False, temperature: float | None = None) ->
     temp = temperature if temperature is not None else settings.llm_temperature
     models = []
     
+    groq_key = settings.groq_api_key or os.environ.get("GROQ_API_KEY", "")
+    if groq_key:
+        models.append(ChatGroq(
+            model="llama3-8b-8192",  # Blazing fast Groq model
+            temperature=temp,
+            api_key=groq_key,
+            max_retries=1
+        ))
+
     gemini_key = settings.gemini_api_key or os.environ.get("GEMINI_API_KEY", "")
     if gemini_key:
         model_name = settings.advanced_llm_model if require_advanced else settings.fast_llm_model

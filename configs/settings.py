@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     openai_api_key: str = ""
     openrouter_api_key: str = ""
+    groq_api_key: str = ""
     
     # Models to use if using Gemini
     fast_llm_model: str = "gemini-3.5-flash"       
