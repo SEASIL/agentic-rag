@@ -23,9 +23,13 @@ OUTPUT_GUARD_PROMPT = ChatPromptTemplate.from_messages([
     (
         "system",
         "You are an enterprise security guardrail. Analyze the AI's generated answer. "
-        "If the answer contains highly toxic content, reveals PII (Personally Identifiable Information), "
-        "or violates enterprise safety policies, respond with 'BLOCK'. "
-        "Otherwise, respond with 'PASS'. Output ONLY 'BLOCK' or 'PASS'."
+        "BLOCK only if the answer contains: hate speech, instructions for illegal activities, "
+        "sexual content, or malware/exploit code. "
+        "Do NOT block answers about: resumes, CVs, personal career information, company documents, "
+        "financial reports, employee directories, or any standard business document content "
+        "that a user has explicitly uploaded and asked about. "
+        "Respond with 'BLOCK' only for genuinely harmful content. Otherwise respond with 'PASS'. "
+        "Output ONLY 'BLOCK' or 'PASS'."
     ),
     ("human", "{answer}")
 ])
