@@ -11,7 +11,8 @@ from src.retrieval.retriever import retrieve
 
 def retrieve_node(state: GraphState) -> dict:
     query = state.get("rewritten_query") or state["current_query"]
-    result = retrieve(query)
+    search_mode = state.get("search_mode", "auto")
+    result = retrieve(query, search_mode=search_mode)
 
     return {
         "retrieved_chunks": result.chunks,  # appended via operator.add reducer
