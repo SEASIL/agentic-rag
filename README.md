@@ -79,4 +79,4 @@ The backend operates on a state machine powered by **LangGraph**. When a user su
 5. **Synthesizer:** Takes the gathered context (local + web) and synthesizes a final, formatted Markdown response with citations.
 
 ---
-*Developed for resume demonstration purposes.*
+
