@@ -72,7 +72,7 @@ Then, open your browser and go to `http://127.0.0.1:8000` to interact with the a
 
 The backend operates on a state machine powered by **LangGraph**. When a user submits a query, the application state (`GraphState`) flows through the following nodes:
 
-**Input Guardrail:** Checks if the query is safe and determines the user's selected search mode (Local or Web).
+1. **Input Guardrail:** Checks if the query is safe and determines the user's selected search mode (Local or Web).
 2. **Query Rewriter:** Optimizes the user's raw query into an optimized search string for the vector database and search engine.
 3. **Retrieval Node:** Embeds the query and performs a semantic similarity search against the Supabase `pgvector` database.
 4. **Web Search Node:** Hits the Tavily API to gather live internet context (if requested).
