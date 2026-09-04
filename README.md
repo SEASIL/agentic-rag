@@ -14,8 +14,8 @@ A full-stack, AI-powered document assistant that uses **Agentic Retrieval-Augmen
 
 ## ✨ Key Features
 
-1. **Smart Agentic Routing:** The system uses an LLM-driven decision engine (LangGraph) to decide whether to search your local vectorized documents, search the live internet (via Tavily), or synthesize both.
-2. **Hybrid Context:** Combines local private data with real-time web data to provide grounded, accurate answers.
+1. **User-Guided Search:** Choose whether to search your local vectorized documents or search the live internet (via Tavily).
+2. **Contextual Answers:** Uses either local private data or real-time web data to provide grounded, accurate answers.
 3. **Beautiful UI:** A custom-built, responsive chat interface featuring Markdown rendering, auto-scrolling, and inline source citations (pills).
 4. **Source Citations:** Every answer includes exact references to the document (and page number) or the website it pulled the information from, completely eliminating hallucinations.
 
@@ -72,11 +72,11 @@ Then, open your browser and go to `http://127.0.0.1:8000` to interact with the a
 
 The backend operates on a state machine powered by **LangGraph**. When a user submits a query, the application state (`GraphState`) flows through the following nodes:
 
-1. **Input Guardrail:** Checks if the query is safe and determines the user's selected search mode (Auto, Local, or Web).
+**Input Guardrail:** Checks if the query is safe and determines the user's selected search mode (Local or Web).
 2. **Query Rewriter:** Optimizes the user's raw query into an optimized search string for the vector database and search engine.
 3. **Retrieval Node:** Embeds the query and performs a semantic similarity search against the Supabase `pgvector` database.
 4. **Web Search Node:** Hits the Tavily API to gather live internet context (if requested).
-5. **Synthesizer:** Takes the gathered context (local + web) and synthesizes a final, formatted Markdown response with citations.
+5. **Synthesizer:** Takes the gathered context and synthesizes a final, formatted Markdown response with citations.
 
 ---
 
