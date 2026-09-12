@@ -108,4 +108,4 @@ This project includes a robust evaluation suite:
 Run any of these directly to reproduce performance claims!
 
 ---
-*Developed for resume demonstration purposes.*
+
