@@ -6,20 +6,30 @@ A full-stack, AI-powered document assistant that uses **Agentic Retrieval-Augmen
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![LangGraph](https://img.shields.io/badge/Orchestration-LangGraph-blue?style=for-the-badge)
-![LangChain](https://img.shields.io/badge/Framework-LangChain-121212?style=for-the-badge)
-![ChromaDB](https://img.shields.io/badge/Database-ChromaDB-FC5200?style=for-the-badge)
-![TailwindCSS](https://img.shields.io/badge/UI-TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![HTML5](https://img.shields.io/badge/Frontend-HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![JavaScript](https://img.shields.io/badge/Frontend-JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Docker](https://img.shields.io/badge/Deployment-Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Render](https://img.shields.io/badge/Hosting-Render-000000?style=for-the-badge&logo=render&logoColor=white)
-![Gemini](https://img.shields.io/badge/LLM-Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)
-![OpenRouter](https://img.shields.io/badge/LLM-OpenRouter-000000?style=for-the-badge)
-![Pytest](https://img.shields.io/badge/Testing-Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)
-![Ragas](https://img.shields.io/badge/Evaluation-Ragas-FF4B4B?style=for-the-badge)
+<!-- Core Languages & Frontend -->
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+<br/>
+
+<!-- Backend & Orchestration -->
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-blue?style=for-the-badge)
+![LangChain](https://img.shields.io/badge/LangChain-121212?style=for-the-badge)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-FC5200?style=for-the-badge)
+<br/>
+
+<!-- AI Models & Evaluation -->
+![Gemini](https://img.shields.io/badge/Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)
+![OpenRouter](https://img.shields.io/badge/OpenRouter-000000?style=for-the-badge)
+![Ragas](https://img.shields.io/badge/Ragas-FF4B4B?style=for-the-badge)
+![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)
+<br/>
+
+<!-- Deployment -->
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Render](https://img.shields.io/badge/Render-000000?style=for-the-badge&logo=render&logoColor=white)
 
 </div>
 
