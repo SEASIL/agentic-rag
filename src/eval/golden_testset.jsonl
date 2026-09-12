@@ -1,2 +1,15 @@
-{"question": "REPLACE ME: a real question a user would actually ask", "ground_truth": "REPLACE ME: the correct answer, verified by a human"}
-{"question": "Add more human-curated examples here \u2014 aim for 20-50 covering your hardest real cases (multi-hop, tables, ambiguous phrasing)", "ground_truth": "..."}
+{"question": "What are the standard working hours?", "ground_truth": "Standard working hours are from 9:00 AM to 5:00 PM in your local timezone."}
+{"question": "How many days of vacation do full-time employees get?", "ground_truth": "All full-time employees are entitled to 20 days of paid time off (PTO) per year."}
+{"question": "Who is the Marketing Manager?", "ground_truth": "Bob Johnson is the Marketing Manager."}
+{"question": "What department does Alice Smith work in?", "ground_truth": "Alice Smith works in the Engineering department."}
+{"question": "What is Diana Prince's role and email?", "ground_truth": "Diana Prince is a DevOps Engineer and her email is diana@company.com."}
+{"question": "How much revenue was generated in Q3 2026?", "ground_truth": "In Q3 2026, the company generated $18.9 million in revenue."}
+{"question": "What was the net profit for Q1 2026?", "ground_truth": "The net profit for Q1 2026 was $4.4 million."}
+{"question": "What were the key highlights from Q2 2026?", "ground_truth": "In Q2 2026, the company expanded to Europe."}
+{"question": "Which quarter had record breaking sales in Asia?", "ground_truth": "Q3 2026 had record breaking sales in Asia."}
+{"question": "Who launched Product X and in what quarter?", "ground_truth": "Product X was launched in Q1 2026."}
+{"question": "Is the company offering remote work?", "ground_truth": "The company supports a hybrid work model."}
+{"question": "Who leads the Sales department?", "ground_truth": "Charlie Brown is the Sales Lead."}
+{"question": "What was the total revenue for the first three quarters of 2026?", "ground_truth": "The total revenue for the first three quarters of 2026 was $45.6 million (12.5 + 14.2 + 18.9)."}
+{"question": "What is the IT security policy for passwords and computers?", "ground_truth": "Do not share passwords and always lock your computer when stepping away from your desk."}
+{"question": "Who are all the employees in the Engineering department?", "ground_truth": "Alice Smith and Diana Prince are in the Engineering department."}

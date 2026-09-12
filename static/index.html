@@ -14,9 +14,10 @@
         .markdown-content h3:first-child { margin-top: 0; }
         .markdown-content p { margin-bottom: 0.75rem; }
         .markdown-content p:last-child { margin-bottom: 0; }
-        .markdown-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-content ul { list-style-type: none; padding-left: 1.5rem; margin-bottom: 0.75rem; }
         .markdown-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
-        .markdown-content li { margin-bottom: 0.25rem; }
+        .markdown-content li { margin-bottom: 0.5rem; position: relative; padding-left: 1rem; }
+        .markdown-content ul li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; }
         .markdown-content strong { font-weight: 600; color: #fff; }
         .markdown-content a { color: #34d399; text-decoration: underline; text-underline-offset: 2px; }
         .markdown-content code { background-color: #262626; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; }
@@ -132,7 +133,6 @@
             <div class="relative flex items-center bg-[#0f0f0f] border border-[#262626] rounded-[2rem] px-2 py-2 shadow-2xl">
                 <!-- Search Mode Toggle -->
                 <select id="search-mode" class="ml-4 bg-[#1a1a1a] text-gray-300 border border-[#333] text-sm rounded-xl px-2 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer transition-colors hover:bg-[#262626]">
-                    <option value="auto">Auto (Smart Routing)</option>
                     <option value="local">Local Docs Only</option>
                     <option value="web">Web Search Only</option>
                 </select>
@@ -140,7 +140,7 @@
                 <input 
                     type="text" 
                     id="user-input" 
-                    placeholder="Message your Agent..." 
+                    placeholder="Input" 
                     class="flex-1 bg-transparent border-none px-6 py-4 focus:outline-none text-white placeholder-gray-500 text-lg font-medium"
                     onkeypress="if(event.key === 'Enter') handleAction()"
                     autocomplete="off"

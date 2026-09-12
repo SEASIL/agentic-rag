@@ -17,28 +17,35 @@ def get_synthesis_prompt(search_mode: str) -> ChatPromptTemplate:
     if search_mode == "local":
         system_instructions = (
             "You are an expert assistant answering the user's question. "
-            "Answer the question naturally using ONLY the provided Document Context. "
+            "Answer the question using ONLY the provided Document Context. "
             "If the document context does not contain the answer, explicitly state 'No relevant information found in the local documents.'\n\n"
-            "Do not include any structural headers like 'From My Documents'. Just provide the answer directly. "
-            "Do not use outside knowledge. Cite sources inline using [source] markers."
+            "FORMATTING RULES (you MUST follow these strictly):\n"
+            "- Structure your ENTIRE answer as a bullet point list using markdown (- or *). "
+            "Every sentence must be a separate bullet point. Never write paragraphs.\n"
+            "- Do NOT include any citations, references, source tags, numbered references like [1] or [2], URLs, or links anywhere in the answer.\n"
+            "- Do not include any structural headers. Just provide the bullet points directly."
         )
     elif search_mode == "web":
         system_instructions = (
             "You are an expert assistant answering the user's question. "
-            "Answer the question naturally using ONLY the provided Web Search Context. "
-            "Keep your response informative but limit it to around 10 lines. "
+            "Answer the question using ONLY the provided Web Search Context. "
             "If no Web Search Context was provided, explicitly state 'No web search was performed for this query.'\n\n"
-            "Do not include any structural headers like 'From the Web'. Just provide the answer directly. "
-            "Do not use outside knowledge. Cite sources inline using [source] markers."
+            "FORMATTING RULES (you MUST follow these strictly):\n"
+            "- Structure your ENTIRE answer as a bullet point list using markdown (- or *). "
+            "Every sentence must be a separate bullet point. Never write paragraphs.\n"
+            "- Do NOT include any citations, references, source tags, numbered references like [1] or [2], URLs, or links anywhere in the answer.\n"
+            "- Do not include any structural headers. Just provide the bullet points directly."
         )
     else: # auto
         system_instructions = (
             "You are an expert assistant answering the user's question. "
-            "Answer the question naturally by synthesizing information from the provided Document Context and Web Search Context. "
-            "If the information is not found in either, explicitly state that. "
-            "Keep web-based information informative but limited to around 10 lines. \n\n"
-            "Do not include any structural headers like 'From My Documents' or 'From the Web'. Just provide a cohesive answer directly. "
-            "Do not use outside knowledge. Cite sources inline using [source] markers."
+            "Answer the question by synthesizing information from the provided Document Context and Web Search Context. "
+            "If the information is not found in either, explicitly state that.\n\n"
+            "FORMATTING RULES (you MUST follow these strictly):\n"
+            "- Structure your ENTIRE answer as a bullet point list using markdown (- or *). "
+            "Every sentence must be a separate bullet point. Never write paragraphs.\n"
+            "- Do NOT include any citations, references, source tags, numbered references like [1] or [2], URLs, or links anywhere in the answer.\n"
+            "- Do not include any structural headers. Just provide the bullet points directly."
         )
 
     return ChatPromptTemplate.from_messages(
@@ -91,6 +98,8 @@ def _format_web_context(state: GraphState) -> str:
 
 
 def synthesize_node(state: GraphState) -> dict:
+    import re
+
     llm = get_llm(require_advanced=True)
     prompt = get_synthesis_prompt(state.get("search_mode", "auto"))
     chain = prompt | llm | StrOutputParser()
@@ -111,5 +120,18 @@ def synthesize_node(state: GraphState) -> dict:
             "chat_history": history,
         }
     )
+
+    # Strip all citation patterns the LLM might produce:
+    # 1. Markdown links in brackets: [[url](url), [url](url)]
+    # 2. Simple bracketed URLs: [https://example.com]
+    # 3. Simple source tags: [source]
+    # 4. Numbered references: [1], [2], [1][3]
+    answer = re.sub(r'\s*\[?\[https?://[^\]]*\]\([^\)]*\)[,\s]*\]?', '', answer)
+    answer = re.sub(r'\s*\[https?://[^\]]+\]', '', answer)
+    answer = re.sub(r'\s*\[[^\[\]]*source[^\[\]]*\]\.?', '', answer, flags=re.IGNORECASE)
+    answer = re.sub(r'\s*(\[\d+\])+', '', answer)
+    # Clean up any leftover empty brackets or double spaces
+    answer = re.sub(r'\s*\[\s*[,\s]*\]', '', answer)
+    answer = re.sub(r'  +', ' ', answer).strip()
 
     return {"final_answer": answer}

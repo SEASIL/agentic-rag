@@ -20,7 +20,7 @@ from ragas import evaluate
 from ragas.metrics import context_recall, faithfulness, answer_relevancy, context_precision
 from ragas.llms import LangchainLLMWrapper
 from ragas.embeddings import LangchainEmbeddingsWrapper
-from langchain_ollama import ChatOllama
+
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 from configs.settings import settings
@@ -32,8 +32,11 @@ from src.orchestration.graph import run_query
 # any metrics that need embeddings — keeps the entire eval loop free/local.
 
 
+from langchain_openai import ChatOpenAI
+
 def _get_ragas_llm() -> LangchainLLMWrapper:
-    llm = ChatOllama(model=settings.llm_model, base_url=settings.ollama_base_url, temperature=0.0)
+    openrouter_key = settings.openrouter_api_key or os.environ.get("OPENROUTER_API_KEY", "")
+    llm = ChatOpenAI(base_url="https://openrouter.ai/api/v1", api_key=openrouter_key, model=settings.openrouter_model, temperature=0.0)
     return LangchainLLMWrapper(llm)
 
 

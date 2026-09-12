@@ -37,8 +37,15 @@ OUTPUT_GUARD_PROMPT = ChatPromptTemplate.from_messages([
 
 def input_guardrail_node(state: GraphState) -> dict:
     """Runs at the very start of the graph to sanitize user input."""
-    # Temporarily bypassed for testing so typos don't trigger it!
-    # A true enterprise guardrail should be fine-tuned rather than zero-shot.
+    llm = get_llm(require_advanced=False)
+    chain = INPUT_GUARD_PROMPT | llm
+    
+    response = chain.invoke({"query": state["original_query"]}).content.strip().upper()
+    is_safe = "BLOCK" not in response
+    
+    if not is_safe:
+        return {"is_safe": False, "final_answer": "Security Guardrail Triggered: The input was blocked for violating safety policies."}
+        
     return {"is_safe": True}
 
 def output_guardrail_node(state: GraphState) -> dict:

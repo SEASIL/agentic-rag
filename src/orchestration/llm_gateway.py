@@ -19,12 +19,14 @@ def get_llm(require_advanced: bool = False, temperature: float | None = None) ->
     temp = temperature if temperature is not None else settings.llm_temperature
     models = []
     
-    groq_key = settings.groq_api_key or os.environ.get("GROQ_API_KEY", "")
-    if groq_key:
-        models.append(ChatGroq(
-            model="llama3-8b-8192",  # Blazing fast Groq model
+
+    openrouter_key = settings.openrouter_api_key or os.environ.get("OPENROUTER_API_KEY", "")
+    if openrouter_key:
+        models.append(ChatOpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=openrouter_key,
+            model=settings.openrouter_model,
             temperature=temp,
-            api_key=groq_key,
             max_retries=1
         ))
 
@@ -35,16 +37,6 @@ def get_llm(require_advanced: bool = False, temperature: float | None = None) ->
             model=model_name,
             temperature=temp,
             google_api_key=gemini_key,
-            max_retries=1
-        ))
-
-    openrouter_key = settings.openrouter_api_key or os.environ.get("OPENROUTER_API_KEY", "")
-    if openrouter_key:
-        models.append(ChatOpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=openrouter_key,
-            model=settings.openrouter_model,
-            temperature=temp,
             max_retries=1
         ))
 

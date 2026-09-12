@@ -33,3 +33,6 @@ MANIFEST
 
 # Local Data
 # (chroma_db is pushed so free hosts don't have to build it)
+
+# Testing
+.pytest_cache/
