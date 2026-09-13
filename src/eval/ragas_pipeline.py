@@ -32,11 +32,11 @@ from src.orchestration.graph import run_query
 # any metrics that need embeddings — keeps the entire eval loop free/local.
 
 
-from langchain_openai import ChatOpenAI
+from langchain_community.chat_models import ChatOllama
 
 def _get_ragas_llm() -> LangchainLLMWrapper:
-    openrouter_key = settings.openrouter_api_key or os.environ.get("OPENROUTER_API_KEY", "")
-    llm = ChatOpenAI(base_url="https://openrouter.ai/api/v1", api_key=openrouter_key, model=settings.openrouter_model, temperature=0.0)
+    # Use local Ollama to avoid rate limits during evaluation
+    llm = ChatOllama(base_url=settings.ollama_base_url, model="phi3", temperature=0.0)
     return LangchainLLMWrapper(llm)
 
 

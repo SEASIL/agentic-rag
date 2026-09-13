@@ -32,7 +32,19 @@ share/python-wheels/
 MANIFEST
 
 # Local Data
-# (chroma_db is pushed so free hosts don't have to build it)
+# (chroma_db is committed so free hosts like Render don't need to rebuild the index on cold start)
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
 
 # Testing
 .pytest_cache/
+
+# IDE
+.vscode/
+.idea/
