@@ -35,8 +35,8 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     
     # Models to use if using Gemini
-    fast_llm_model: str = "gemini-3.5-flash"       
-    advanced_llm_model: str = "gemini-3.5-flash"   
+    fast_llm_model: str = "gemini-3.6-flash"       
+    advanced_llm_model: str = "gemini-3.6-flash"   
     
     # Model to use if using OpenRouter
     openrouter_model: str = "openrouter/free"

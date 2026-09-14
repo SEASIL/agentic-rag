@@ -41,7 +41,7 @@ def input_guardrail_node(state: GraphState) -> dict:
     chain = INPUT_GUARD_PROMPT | llm
     
     response = chain.invoke({"query": state["original_query"]}).content.strip().upper()
-    is_safe = "BLOCK" not in response
+    is_safe = response.startswith("PASS") or ("BLOCK" not in response)
     
     if not is_safe:
         return {"is_safe": False, "final_answer": "Security Guardrail Triggered: The input was blocked for violating safety policies."}
@@ -58,7 +58,7 @@ def output_guardrail_node(state: GraphState) -> dict:
     chain = OUTPUT_GUARD_PROMPT | llm
     
     response = chain.invoke({"answer": state["final_answer"]}).content.strip().upper()
-    is_safe = "BLOCK" not in response
+    is_safe = response.startswith("PASS") or ("BLOCK" not in response)
     
     if not is_safe:
         return {"is_safe": False, "final_answer": "Security Guardrail Triggered: The generated response was blocked for violating safety policies."}

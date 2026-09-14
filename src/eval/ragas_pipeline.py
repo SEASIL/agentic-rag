@@ -27,21 +27,28 @@ from configs.settings import settings
 from src.orchestration.graph import run_query
 
 # Ragas' metrics (faithfulness, answer_relevancy, etc.) use an LLM internally
-# as a judge, and default to OpenAI if not told otherwise. Point it at the
-# same local Ollama model, and use a local HuggingFace embedding model for
-# any metrics that need embeddings — keeps the entire eval loop free/local.
+# as a judge, and default to OpenAI if not told otherwise. Point it at Groq
+# (llama-3.1-8b-instant) for fast, free cloud inference. Uses a local
+# HuggingFace embedding model for any metrics that need embeddings.
 
 
-from langchain_community.chat_models import ChatOllama
+import os
+from langchain_groq import ChatGroq
 
 def _get_ragas_llm() -> LangchainLLMWrapper:
-    # Use local Ollama to avoid rate limits during evaluation
-    llm = ChatOllama(base_url=settings.ollama_base_url, model="phi3", temperature=0.0)
+    # Use Groq for fast, free LLM-as-judge evaluation
+    llm = ChatGroq(
+        groq_api_key=os.getenv("GROQ_API_KEY") or settings.groq_api_key,
+        model_name="openai/gpt-oss-120b",
+        temperature=0.0,
+    )
     return LangchainLLMWrapper(llm)
 
 
 def _get_ragas_embeddings() -> LangchainEmbeddingsWrapper:
-    embeddings = HuggingFaceEmbeddings(model_name=settings.dense_model_name)
+    # Use a lightweight model for evaluation to prevent CPU overheating. 
+    # BAAI/bge-m3 is too heavy for standard laptop CPUs without GPU acceleration.
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     return LangchainEmbeddingsWrapper(embeddings)
 
 

@@ -32,7 +32,7 @@ from src.orchestration.agents.retrieval_node import retrieve_node, route_after_r
 def route_after_input_guardrail(state: GraphState) -> str:
     if not state.get("is_safe", True):
         return END
-    if state.get("search_mode") == "web":
+    if state.get("search_mode") in ["web", "web_search_only"]:
         return "web_search"
     return "retrieve"
 

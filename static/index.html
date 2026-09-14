@@ -307,7 +307,7 @@
                     appendMessage('assistant', 'Search cancelled.');
                 } else {
                     console.error(err);
-                    appendMessage('assistant', 'System offline or an error occurred rendering the message.');
+                    appendMessage('assistant', err.message || 'System offline or an error occurred rendering the message.');
                 }
             } finally {
                 toggleUIState(false);

@@ -32,7 +32,14 @@ def _needs_web(query: str) -> bool:
 
 
 def retrieve(query: str, search_mode: str = "auto") -> RetrievalResult:
-    candidates = hybrid_search(query)
+    if search_mode in ["web", "web_search_only"]:
+        return RetrievalResult(chunks=[], should_fallback_to_web=True)
+
+    try:
+        candidates = hybrid_search(query)
+    except Exception as e:
+        # Fall back to web search if local database is not configured or unavailable
+        candidates = []
 
     # Bypass reranker for free hosting
     top_chunks = candidates[:8]
@@ -40,7 +47,7 @@ def retrieve(query: str, search_mode: str = "auto") -> RetrievalResult:
     if search_mode == "local":
         # User explicitly wants local docs only — never go to web
         should_web = False
-    elif search_mode == "web":
+    elif search_mode in ["web", "web_search_only"]:
         # User explicitly wants web — always go to web
         should_web = True
     else:
