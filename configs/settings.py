@@ -33,14 +33,14 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openrouter_api_key: str = ""
     groq_api_key: str = ""
-    
+
     # Models to use if using Gemini
-    fast_llm_model: str = "gemini-2.5-flash-lite"       
-advanced_llm_model: str = "gemini-2.5-flash"
+    fast_llm_model: str = "gemini-2.5-flash-lite"
+    advanced_llm_model: str = "gemini-2.5-flash"
 
     # Model to use if using OpenRouter
     openrouter_model: str = "openrouter/free"
-    
+
     llm_temperature: float = 0.0
 
     # --- Web search fallback (Tavily) ---
