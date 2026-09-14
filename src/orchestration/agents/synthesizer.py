@@ -100,37 +100,36 @@ def _format_web_context(state: GraphState) -> str:
 def synthesize_node(state: GraphState) -> dict:
     import re
 
-    llm = get_llm(require_advanced=True)
-    prompt = get_synthesis_prompt(state.get("search_mode", "auto"))
-    chain = prompt | llm | StrOutputParser()
+    try:
+        llm = get_llm(require_advanced=True)
+        prompt = get_synthesis_prompt(state.get("search_mode", "auto"))
+        chain = prompt | llm | StrOutputParser()
 
-    from langchain_core.messages import HumanMessage, AIMessage
-    history = []
-    for msg in state.get("chat_history", []):
-        if msg["role"] == "user":
-            history.append(HumanMessage(content=msg["content"]))
-        elif msg["role"] == "assistant":
-            history.append(AIMessage(content=msg["content"]))
+        from langchain_core.messages import HumanMessage, AIMessage
+        history = []
+        for msg in state.get("chat_history", []):
+            if msg["role"] == "user":
+                history.append(HumanMessage(content=msg["content"]))
+            elif msg["role"] == "assistant":
+                history.append(AIMessage(content=msg["content"]))
 
-    answer = chain.invoke(
-        {
-            "question": state["original_query"],
-            "doc_context": _format_doc_context(state),
-            "web_context": _format_web_context(state),
-            "chat_history": history,
-        }
-    )
+        answer = chain.invoke(
+            {
+                "question": state["original_query"],
+                "doc_context": _format_doc_context(state),
+                "web_context": _format_web_context(state),
+                "chat_history": history,
+            }
+        )
+    except Exception as e:
+        print(f"\n[Synthesizer Notice] LLM call failed: {e}")
+        return {"final_answer": "I wasn't able to generate a response right now — this usually means all connected LLM providers are unavailable or rate-limited. Please try again shortly."}
 
-    # Strip all citation patterns the LLM might produce:
-    # 1. Markdown links in brackets: [[url](url), [url](url)]
-    # 2. Simple bracketed URLs: [https://example.com]
-    # 3. Simple source tags: [source]
-    # 4. Numbered references: [1], [2], [1][3]
+    # Strip all citation patterns the LLM might produce
     answer = re.sub(r'\s*\[?\[https?://[^\]]*\]\([^\)]*\)[,\s]*\]?', '', answer)
     answer = re.sub(r'\s*\[https?://[^\]]+\]', '', answer)
     answer = re.sub(r'\s*\[[^\[\]]*source[^\[\]]*\]\.?', '', answer, flags=re.IGNORECASE)
     answer = re.sub(r'\s*(\[\d+\])+', '', answer)
-    # Clean up any leftover empty brackets or double spaces
     answer = re.sub(r'\s*\[\s*[,\s]*\]', '', answer)
     answer = re.sub(r'  +', ' ', answer).strip()
 
