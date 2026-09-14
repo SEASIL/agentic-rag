@@ -37,30 +37,36 @@ OUTPUT_GUARD_PROMPT = ChatPromptTemplate.from_messages([
 
 def input_guardrail_node(state: GraphState) -> dict:
     """Runs at the very start of the graph to sanitize user input."""
-    llm = get_llm(require_advanced=False)
-    chain = INPUT_GUARD_PROMPT | llm
-    
-    response = chain.invoke({"query": state["original_query"]}).content.strip().upper()
-    is_safe = response.startswith("PASS") or ("BLOCK" not in response)
-    
+    try:
+        llm = get_llm(require_advanced=False)
+        chain = INPUT_GUARD_PROMPT | llm
+        response = chain.invoke({"query": state["original_query"]}).content.strip().upper()
+        is_safe = response.startswith("PASS") or ("BLOCK" not in response)
+    except Exception as e:
+        print(f"\n[Input Guardrail Notice] LLM call failed, failing open: {e}")
+        return {"is_safe": True}
+
     if not is_safe:
         return {"is_safe": False, "final_answer": "Security Guardrail Triggered: The input was blocked for violating safety policies."}
-        
+
     return {"is_safe": True}
+
 
 def output_guardrail_node(state: GraphState) -> dict:
     """Runs at the very end of the graph to sanitize the synthesized answer."""
-    # If it was already blocked by the input guardrail, skip
     if not state.get("is_safe", True):
         return {}
-        
-    llm = get_llm(require_advanced=False)
-    chain = OUTPUT_GUARD_PROMPT | llm
-    
-    response = chain.invoke({"answer": state["final_answer"]}).content.strip().upper()
-    is_safe = response.startswith("PASS") or ("BLOCK" not in response)
-    
+
+    try:
+        llm = get_llm(require_advanced=False)
+        chain = OUTPUT_GUARD_PROMPT | llm
+        response = chain.invoke({"answer": state["final_answer"]}).content.strip().upper()
+        is_safe = response.startswith("PASS") or ("BLOCK" not in response)
+    except Exception as e:
+        print(f"\n[Output Guardrail Notice] LLM call failed, failing open: {e}")
+        return {"is_safe": True}
+
     if not is_safe:
         return {"is_safe": False, "final_answer": "Security Guardrail Triggered: The generated response was blocked for violating safety policies."}
-        
+
     return {"is_safe": True}
