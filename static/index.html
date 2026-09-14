@@ -133,14 +133,15 @@
             <div class="relative flex items-center bg-[#0f0f0f] border border-[#262626] rounded-[2rem] px-2 py-2 shadow-2xl">
                 <!-- Search Mode Toggle -->
                 <select id="search-mode" class="ml-4 bg-[#1a1a1a] text-gray-300 border border-[#333] text-sm rounded-xl px-2 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer transition-colors hover:bg-[#262626]">
-                    <option value="local">Local Docs Only</option>
-                    <option value="web">Web Search Only</option>
+                    <option value="auto" selected>Auto</option>
+                    <option value="web">Web Search</option>
+                    <option value="local">Local Docs</option>
                 </select>
 
                 <input 
                     type="text" 
                     id="user-input" 
-                    placeholder="Input" 
+                    placeholder="Ask anything..." 
                     class="flex-1 bg-transparent border-none px-6 py-4 focus:outline-none text-white placeholder-gray-500 text-lg font-medium"
                     onkeypress="if(event.key === 'Enter') handleAction()"
                     autocomplete="off"

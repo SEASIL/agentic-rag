@@ -2,11 +2,23 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
+import os
 
 # Import the existing run_query function from your orchestrator
 from src.orchestration.graph import run_query
+from src.orchestration.llm_gateway import get_available_llms
+from configs.settings import settings
 
 app = FastAPI(title="Agentic RAG API")
+
+# On startup, log the active providers so Render logs are informative
+@app.on_event("startup")
+async def startup_check():
+    llms = get_available_llms()
+    names = [llm.__class__.__name__ for llm in llms]
+    print(f"[Startup] Active LLM providers: {names if names else ['Ollama fallback']}")
+    print(f"[Startup] Tavily web search: {'enabled' if settings.tavily_api_key else 'DISABLED — set TAVILY_API_KEY'}")
+    print(f"[Startup] Database URL: {'set' if settings.database_url else 'NOT SET — local doc retrieval disabled'}")
 
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -24,6 +36,17 @@ app.add_middleware(
 @app.get("/")
 def serve_frontend():
     return FileResponse("static/index.html")
+
+@app.get("/api/health")
+def health():
+    """Health check that shows which providers are configured — useful for debugging Render deployments."""
+    llms = get_available_llms()
+    return {
+        "status": "ok",
+        "providers": [llm.__class__.__name__ for llm in llms] or ["ollama-fallback"],
+        "tavily_web_search": bool(settings.tavily_api_key),
+        "database_configured": bool(settings.database_url),
+    }
 
 class ChatMessage(BaseModel):
     role: str

@@ -25,7 +25,7 @@ def get_synthesis_prompt(search_mode: str) -> ChatPromptTemplate:
             "- Do NOT include any citations, references, source tags, numbered references like [1] or [2], URLs, or links anywhere in the answer.\n"
             "- Do not include any structural headers. Just provide the bullet points directly."
         )
-    elif search_mode == "web":
+    elif search_mode in ["web", "web_search_only"]:
         system_instructions = (
             "You are an expert assistant answering the user's question. "
             "Answer the question using ONLY the provided Web Search Context. "
