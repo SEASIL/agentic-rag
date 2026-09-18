@@ -71,7 +71,7 @@ def build_graph():
     return graph.compile()
 
 
-def run_query(query: str, chat_history: list[dict] = None, search_mode: str = "auto") -> dict:
+def run_query(query: str, chat_history: list[dict] = None, search_mode: str = "local") -> dict:
     """Convenience entry point: runs the full graph for a single question
     and returns the final state (answer + citations + full trace)."""
         

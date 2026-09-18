@@ -55,7 +55,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     query: str
     chat_history: Optional[List[ChatMessage]] = []
-    search_mode: Optional[str] = "auto"
+    search_mode: Optional[str] = "local"
 
 class Citation(BaseModel):
     source_path: str
