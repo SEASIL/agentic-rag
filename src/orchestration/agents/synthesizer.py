@@ -20,8 +20,9 @@ def get_synthesis_prompt(search_mode: str) -> ChatPromptTemplate:
             "Answer the question using ONLY the provided Document Context. "
             "If the document context does not contain the answer, explicitly state 'No relevant information found in the local documents.'\n\n"
             "FORMATTING RULES (you MUST follow these strictly):\n"
-            "- Structure your ENTIRE answer as a bullet point list using markdown (- or *). "
+            "- If the information is found, structure your ENTIRE answer as a bullet point list using markdown (- or *). "
             "Every sentence must be a separate bullet point. Never write paragraphs.\n"
+            "- If the information is NOT found, output ONLY the fallback message exactly as specified, without any bullet points or markdown formatting.\n"
             "- Do NOT include any citations, references, source tags, numbered references like [1] or [2], URLs, or links anywhere in the answer.\n"
             "- Do not include any structural headers. Just provide the bullet points directly."
         )
@@ -31,8 +32,9 @@ def get_synthesis_prompt(search_mode: str) -> ChatPromptTemplate:
             "Answer the question using ONLY the provided Web Search Context. "
             "If no Web Search Context was provided, explicitly state 'No web search was performed for this query.'\n\n"
             "FORMATTING RULES (you MUST follow these strictly):\n"
-            "- Structure your ENTIRE answer as a bullet point list using markdown (- or *). "
+            "- If the information is found, structure your ENTIRE answer as a bullet point list using markdown (- or *). "
             "Every sentence must be a separate bullet point. Never write paragraphs.\n"
+            "- If the information is NOT found, output ONLY the fallback message exactly as specified, without any bullet points or markdown formatting.\n"
             "- Do NOT include any citations, references, source tags, numbered references like [1] or [2], URLs, or links anywhere in the answer.\n"
             "- Do not include any structural headers. Just provide the bullet points directly."
         )
@@ -42,8 +44,9 @@ def get_synthesis_prompt(search_mode: str) -> ChatPromptTemplate:
             "Answer the question by synthesizing information from the provided Document Context and Web Search Context. "
             "If the information is not found in either, explicitly state that.\n\n"
             "FORMATTING RULES (you MUST follow these strictly):\n"
-            "- Structure your ENTIRE answer as a bullet point list using markdown (- or *). "
+            "- If the information is found, structure your ENTIRE answer as a bullet point list using markdown (- or *). "
             "Every sentence must be a separate bullet point. Never write paragraphs.\n"
+            "- If the information is NOT found, output ONLY the fallback message explicitly stating so, without any bullet points or markdown formatting.\n"
             "- Do NOT include any citations, references, source tags, numbered references like [1] or [2], URLs, or links anywhere in the answer.\n"
             "- Do not include any structural headers. Just provide the bullet points directly."
         )
