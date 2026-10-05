@@ -6,4 +6,3 @@ __pycache__/
 .venv/
 venv/
 env/
-data/chroma_db/
