@@ -136,4 +136,12 @@ def synthesize_node(state: GraphState) -> dict:
     answer = re.sub(r'\s*\[\s*[,\s]*\]', '', answer)
     answer = re.sub(r'  +', ' ', answer).strip()
 
+    # Programmatic fallback cleanup: LLMs often ignore negative constraints and bullet-point the fallback message anyway
+    fallback_local = "No relevant information found in the local documents."
+    fallback_web = "No web search was performed for this query."
+    if fallback_local.lower() in answer.lower():
+        answer = fallback_local
+    elif fallback_web.lower() in answer.lower():
+        answer = fallback_web
+
     return {"final_answer": answer}
