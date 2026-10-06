@@ -1,4 +1,4 @@
-# 🤖 Agentic RAG Document Assistant
+# 🤖 Agentic-RAG 
 
 A full-stack, AI-powered document assistant that uses **Agentic Retrieval-Augmented Generation (RAG)** to intelligently answer questions by searching through your local documents or browsing the live web.
 
